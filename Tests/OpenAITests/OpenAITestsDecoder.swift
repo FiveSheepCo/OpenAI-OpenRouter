@@ -88,7 +88,100 @@ class OpenAITestsDecoder: XCTestCase {
         ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
         try decode(data, expectedValue)
     }
-    
+
+    func testStreamingChatCompletion() async throws {
+        let data = """
+        data: {"nonce": "51", "id":"gen-1738349146-QLpeKKtpEC8N193PUajY","provider":"OpenAI","model":"gpt-4o-mini","object":"chat.completion.chunk","created":1738349146,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+        
+        : PROCESSING
+
+        data: {"nonce": "8fa2c782", "id":"gen-1738349146-QLpeKKtpEC8N193PUajY","provider":"OpenAI","model":"gpt-4o-mini","object":"chat.completion.chunk","created":1738349146,"choices":[{"index":0,"delta":{"role":"assistant","content":"Hello"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+        
+        data: {"nonce": "9c193b", "id":"gen-1738349146-QLpeKKtpEC8N193PUajY","provider":"OpenAI","model":"gpt-4o-mini","object":"chat.completion.chunk","created":1738349146,"choices":[{"index":0,"delta":{"role":"assistant","content":" World"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+        
+        : PROCESSING
+        
+        data: {"nonce": "3979e2852d43bd", "id":"gen-1738349146-QLpeKKtpEC8N193PUajY","provider":"OpenAI","model":"gpt-4o-mini","object":"chat.completion.chunk","created":1738349146,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":23,"completion_tokens":2,"total_tokens":25}}
+
+        data: [DONE]
+        """
+
+        var expectedChunks = [
+            ChatStreamResult(
+                id: "gen-1738349146-QLpeKKtpEC8N193PUajY",
+                object: "chat.completion.chunk",
+                created: 1738349146,
+                model: .gpt4_o_mini,
+                choices: [
+                    ChatStreamResult.Choice(
+                        index: 0,
+                        delta: .init(content: "", role: .assistant, toolCalls: nil),
+                        finishReason: nil,
+                        logprobs: nil
+                    )
+                ],
+                systemFingerprint: nil
+            ),
+            ChatStreamResult(
+                id: "gen-1738349146-QLpeKKtpEC8N193PUajY",
+                object: "chat.completion.chunk",
+                created: 1738349146,
+                model: .gpt4_o_mini,
+                choices: [
+                    ChatStreamResult.Choice(
+                        index: 0,
+                        delta: .init(content: "Hello", role: .assistant, toolCalls: nil),
+                        finishReason: nil,
+                        logprobs: nil
+                    )
+                ],
+                systemFingerprint: nil
+            ),
+            ChatStreamResult(
+                id: "gen-1738349146-QLpeKKtpEC8N193PUajY",
+                object: "chat.completion.chunk",
+                created: 1738349146,
+                model: .gpt4_o_mini,
+                choices: [
+                    ChatStreamResult.Choice(
+                        index: 0,
+                        delta: .init(content: " World", role: .assistant, toolCalls: nil),
+                        finishReason: nil,
+                        logprobs: nil
+                    )
+                ],
+                systemFingerprint: nil
+            ),
+            ChatStreamResult(
+                id: "gen-1738349146-QLpeKKtpEC8N193PUajY",
+                object: "chat.completion.chunk",
+                created: 1738349146,
+                model: .gpt4_o_mini,
+                choices: [
+                    ChatStreamResult.Choice(
+                        index: 0,
+                        delta: .init(content: "", role: .assistant, toolCalls: nil),
+                        finishReason: nil,
+                        logprobs: nil
+                    )
+                ],
+                systemFingerprint: nil
+            )
+        ]
+        let streamingSession = StreamingSession<ChatStreamResult>(
+            urlRequest: URLRequest(url: URL(string: "http://invalid")!)
+        )
+        streamingSession.onReceiveContent = { session, result in
+            if let nextChunk = expectedChunks.first {
+                expectedChunks.removeFirst()
+                XCTAssertEqual(result, nextChunk)
+            } else {
+                XCTFail("Received more chunks than expected")
+            }
+        }
+        streamingSession.processJSON(from: data)
+    }
+
     func testImageQuery() async throws {
         let imageQuery = ImagesQuery(
             prompt: "test",

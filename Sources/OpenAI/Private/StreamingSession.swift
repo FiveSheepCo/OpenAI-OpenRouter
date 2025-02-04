@@ -56,7 +56,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
 
 extension StreamingSession {
     
-    private func processJSON(from stringContent: String) {
+    internal func processJSON(from stringContent: String) {
         if stringContent.isEmpty {
             return
         }
