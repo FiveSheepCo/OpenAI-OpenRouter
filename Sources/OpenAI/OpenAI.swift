@@ -31,8 +31,19 @@ final public class OpenAI: OpenAIProtocol {
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
-        
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
+
+        public let additionalHeaders: [String: String?]
+
+        public init(
+            token: String,
+            organizationIdentifier: String? = nil,
+            host: String = "api.openai.com",
+            port: Int = 443,
+            scheme: String = "https",
+            basePath: String = "",
+            timeoutInterval: TimeInterval = 60.0,
+            additionalHeaders: [String: String?] = [:]
+        ) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -40,6 +51,7 @@ final public class OpenAI: OpenAIProtocol {
             self.scheme = scheme
             self.basePath = basePath
             self.timeoutInterval = timeoutInterval
+            self.additionalHeaders = additionalHeaders
         }
     }
     
@@ -258,9 +270,10 @@ extension OpenAI {
 
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try request.build(token: configuration.token, 
+            let request = try request.build(token: configuration.token,
                                             organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+                                            timeoutInterval: configuration.timeoutInterval,
+                                            additionalHeaders: configuration.additionalHeaders)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     return completion(.failure(error))
@@ -285,7 +298,8 @@ extension OpenAI {
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+                                            timeoutInterval: configuration.timeoutInterval,
+                                            additionalHeaders: configuration.additionalHeaders)
             let session = StreamingSession<ResultType>(urlRequest: request)
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
@@ -308,8 +322,9 @@ extension OpenAI {
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
-            
+                                            timeoutInterval: configuration.timeoutInterval,
+                                            additionalHeaders: configuration.additionalHeaders)
+
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     return completion(.failure(error))
