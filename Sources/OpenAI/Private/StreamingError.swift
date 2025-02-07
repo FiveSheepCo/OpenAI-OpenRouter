@@ -7,7 +7,8 @@
 
 import Foundation
 
-enum StreamingError: Error {
+public enum StreamingError: Error {
     case unknownContent
     case emptyContent
+    case statusError(Int)
 }

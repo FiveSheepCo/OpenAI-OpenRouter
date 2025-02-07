@@ -46,6 +46,15 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             onProcessingError?(self, error)
         }
     }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
+            self.onProcessingError?(self, StreamingError.statusError(httpResponse.statusCode))
+            completionHandler(.cancel)
+            return
+        }
+        completionHandler(.allow)
+    }
     
     private func subscribeToParser() {
         interpreter.onEventDispatched = { [weak self] content in
