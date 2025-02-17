@@ -10,5 +10,5 @@ import Foundation
 public enum StreamingError: Error {
     case unknownContent
     case emptyContent
-    case statusError(Int)
+    case statusError(response: HTTPURLResponse, status: Int)
 }

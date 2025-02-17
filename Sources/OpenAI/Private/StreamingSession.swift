@@ -49,7 +49,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
-            self.onProcessingError?(self, StreamingError.statusError(httpResponse.statusCode))
+            self.onProcessingError?(self, StreamingError.statusError(response: httpResponse, status: httpResponse.statusCode))
             completionHandler(.cancel)
             return
         }
