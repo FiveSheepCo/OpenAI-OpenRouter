@@ -17,6 +17,10 @@ public struct ChatStreamResult: Codable, Equatable {
 
             /// The contents of the chunk message.
             public let content: String?
+
+            /// The contents of the reasoning chunk message.
+            public let reasoning: String?
+
             /// The role of the author of this message.
             public let role: Self.Role?
             public let toolCalls: [Self.ChoiceDeltaToolCall]?
@@ -61,6 +65,7 @@ public struct ChatStreamResult: Codable, Equatable {
 
             public enum CodingKeys: String, CodingKey {
                 case content
+                case reasoning
                 case role
                 case toolCalls = "tool_calls"
             }
