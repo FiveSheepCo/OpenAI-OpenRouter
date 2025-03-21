@@ -9,7 +9,7 @@ import Foundation
 
 public enum OpenAIError: Error {
     case emptyData
-    case statusError(response: HTTPURLResponse, statusCode: Int)
+    case statusError(response: URLResponse, statusCode: Int)
 }
 
 public struct APIError: Error, Decodable, Equatable {
