@@ -287,3 +287,24 @@ extension OpenAI: OpenAIAsync {
         }
     }
 }
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension OpenAI {
+    public func customGet<R>(path: String) async throws -> R where R: Codable {
+        func makeCustomRequest(path: String) -> JSONRequest<R> {
+            .init(url: buildURL(path: path), method: "GET")
+        }
+        return try await performRequestAsync(
+            request: makeCustomRequest(path: path)
+        )
+    }
+
+    public func customPost<Q, R>(path: String, query: Q) async throws -> R where Q: Codable, R: Codable {
+        func makeCustomRequest(path: String) -> JSONRequest<R> {
+            .init(body: query, url: buildURL(path: path))
+        }
+        return try await performRequestAsync(
+            request: makeCustomRequest(path: path)
+        )
+    }
+}
