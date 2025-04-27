@@ -109,12 +109,9 @@ public struct ChatResult: Codable, Equatable, Sendable {
             public let refusal: String?
             /// The role of the author of this message.
             public let role: String
-            /// Annotations for the message, when applicable, as when using the web search tool.
-            /// Web search tool: https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat
-            ///
-            /// This field is declared non-optional in OpenAI API reference, but to not make breaking changes for our users that use this SDK for other providers like DeepSeek, made it optional for now
-            /// See https://github.com/MacPaw/OpenAI/issues/293
-            public let annotations: [Annotation]?
+            /// Annotations returned by OpenRouter when a PDF is processed using OCR.
+            /// The exact structure of this field is not documented, but we have to preserve it.
+            public let annotations: [AnyCodable]?
             /// If the audio output modality is requested, this object contains data about the audio response from the model.
             /// [Learn more](https://platform.openai.com/docs/guides/audio)
             public let audio: Audio?
