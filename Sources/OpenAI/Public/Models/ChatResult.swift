@@ -26,13 +26,7 @@ public struct ChatResult: Codable, Equatable, Sendable {
             public let refusal: String?
             /// The role of the author of this message.
             public let role: String
-            
-            /// Annotations for the message, when applicable, as when using the web search tool.
-            /// Web search tool: https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat
-            ///
-            /// This field is declared non-optional in OpenAI API reference, but to not make breaking changes for our users that use this SDK for other providers like DeepSeek, made it optional for now
-            /// See https://github.com/MacPaw/OpenAI/issues/293
-            public let annotations: [Annotation]?
+
             /// If the audio output modality is requested, this object contains data about the audio response from the model.
             /// Learn more: https://platform.openai.com/docs/guides/audio
             public let audio: Audio?
@@ -69,38 +63,14 @@ public struct ChatResult: Codable, Equatable, Sendable {
                 _reasoning ?? _reasoningContent
             }
 
+            /// Annotations returned by OpenRouter when a PDF is processed using OCR.
+            /// The exact structure of this field is not documented, but we have to preserve it.
+            public let annotations: [AnyCodable]?
+
             public enum CodingKeys: String, CodingKey {
                 case content, refusal, role, annotations, audio, toolCalls = "tool_calls"
                 case _reasoning = "reasoning"
                 case _reasoningContent = "reasoning_content"
-            }
-            
-            public struct Annotation: Codable, Equatable, Sendable {
-                /// The type of the URL citation. Always `url_citation`.
-                let type: String
-                /// A URL citation when using web search.
-                let urlCitation: URLCitation
-                
-                public enum CodingKeys: String, CodingKey {
-                    case type, urlCitation = "url_citation"
-                }
-                
-                public struct URLCitation: Codable, Equatable, Sendable {
-                    /// The index of the last character of the URL citation in the message.
-                    let endIndex: Int
-                    /// The index of the first character of the URL citation in the message.
-                    let startIndex: Int
-                    /// The title of the web resource.
-                    let title: String
-                    /// The URL of the web resource.
-                    let url: String
-                    
-                    public enum CodingKeys: String, CodingKey {
-                        case endIndex = "end_index"
-                        case startIndex = "start_index"
-                        case title, url
-                    }
-                }
             }
             
             public struct Audio: Codable, Equatable, Sendable {
