@@ -50,6 +50,10 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
                 _reasoning ?? _reasoningContent
             }
 
+            /// Annotations returned by OpenRouter when a PDF is processed using OCR.
+            /// The exact structure of this field is not documented, but we have to preserve it.
+            public let annotations: [AnyCodable]?
+
             public struct ChoiceDeltaAudio: Codable, Equatable, Sendable {
 
                 /// Unique identifier for this audio response.
@@ -114,6 +118,7 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
                 case toolCalls = "tool_calls"
                 case _reasoning = "reasoning"
                 case _reasoningContent = "reasoning_content"
+                case annotations
             }
         }
 
