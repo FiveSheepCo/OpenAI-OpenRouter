@@ -161,6 +161,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// The gpt-4o-audio-preview model can also be used to [generate audio](https://platform.openai.com/docs/guides/audio). To request that this model generate both text and audio responses, you can use: `["text", "audio"]`
     public var modalities: [Self.ChatCompletionModalities]?
     
+    /// The serial number/s of the darkbloom provider/s to be routed to.
+    public let providerSerial: [String]?
+    
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
@@ -189,7 +192,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         user: String? = nil,
         webSearchOptions: WebSearchOptions? = nil,
         stream: Bool = false,
-        streamOptions: StreamOptions? = nil
+        streamOptions: StreamOptions? = nil,
+        providerSerial: [String]? = nil
     ) {
         self.messages = messages
         self.model = model
@@ -219,6 +223,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         self.streamOptions = streamOptions
         self.audioOptions = audioOptions
         self.modalities = modalities
+        self.providerSerial = providerSerial
     }
     
     public enum ChatCompletionMessageParam: Codable, Equatable, Sendable {
@@ -1341,6 +1346,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case streamOptions = "stream_options"
         case audioOptions = "audio"
         case modalities = "modalities"
+        case providerSerial = "provider_serial"
     }
 }
 
