@@ -96,6 +96,21 @@ struct ChatQueryCodingTests {
         #expect(try equal(query, expected))
     }
     
+    @Test func encodeUnknownServiceTier() throws {
+        let query = ChatQuery(messages: [], model: .gpt4_o, serviceTier: .unknown("some_future_tier"))
+        
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "service_tier": "some_future_tier",
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
     @Test func encodeReasoningContent() throws {
         let query = ChatQuery(
             messages: [

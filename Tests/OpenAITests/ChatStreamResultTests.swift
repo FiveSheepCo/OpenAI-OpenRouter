@@ -174,6 +174,54 @@ final class ChatStreamResultTests: XCTestCase {
         XCTAssertNil(audio.expiresAt)
     }
     
+    func testDecodeProvisionedServiceTier() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion.chunk",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "service_tier": "provisioned"
+            }
+            """
+        
+        let result = try decode(jsonString)
+        XCTAssertEqual(result.serviceTier, .provisioned)
+    }
+    
+    func testDecodeUnknownServiceTier() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion.chunk",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "service_tier": "some_future_tier"
+            }
+            """
+        
+        let result = try decode(jsonString)
+        XCTAssertEqual(result.serviceTier, .unknown("some_future_tier"))
+    }
+    
+    func testDecodeNonStringServiceTier() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion.chunk",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "service_tier": { "name": "provisioned" }
+            }
+            """
+        
+        let result = try decode(jsonString)
+        XCTAssertNil(result.serviceTier)
+    }
+    
     private func decode(_ jsonString: String) throws -> ChatStreamResult {
         let jsonData = jsonString.data(using: .utf8)!
         return try decoder.decode(ChatStreamResult.self, from: jsonData)

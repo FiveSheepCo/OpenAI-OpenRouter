@@ -83,7 +83,9 @@ public struct ChatResult: Codable, Equatable, Sendable {
         self.created = try container.decode(Int.self, forKey: .created)
         self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
         self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
-        self.serviceTier = try container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
+        // Unknown tiers decode to `.unknown`. The tier is informational, so if a provider sends
+        // something that isn't a string at all, fall back to nil instead of failing the whole result.
+        self.serviceTier = try? container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
         self.systemFingerprint = try container.decodeIfPresent(String.self, forKey: .systemFingerprint)
         // It seems to be possible that in some cases `usage` may be neither a full object nor `null`
         // For example, whem model's response is not a content, but `refusal`

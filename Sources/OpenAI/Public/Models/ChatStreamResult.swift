@@ -261,6 +261,8 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
         // To make things simpler, we're not going to check the correctnes of payload before trying to decode
         // We're just going to ignore all the errors here by using optional try and fallback to nil `usage`
         self.usage = try? container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
-        self.serviceTier = try container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
+        // Unknown tiers decode to `.unknown`. The tier is informational, so if a provider sends
+        // something that isn't a string at all, fall back to nil instead of failing the whole result.
+        self.serviceTier = try? container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
     }
 }
